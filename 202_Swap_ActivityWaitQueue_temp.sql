@@ -24,6 +24,12 @@ BEGIN;
 	RETURN;
 END;
 
+DECLARE @max_QueueId BIGINT = 1;
+SELECT @max_QueueId = IDENT_CURRENT ('InteractionStudio.ActivityWaitQueue');
+SELECT @max_QueueId = ISNULL(@max_QueueId, 1) + 1000000;			-- + 1M for safety to avoid collission
+	
+DBCC CHECKIDENT ('InteractionStudio.ActivityWaitQueue_temp', RESEED, @max_QueueId);
+
 EXEC sp_rename 'InteractionStudio.ActivityWaitQueue' , 'ActivityWaitQueue_old';
 EXEC sp_rename 'InteractionStudio.ActivityWaitQueue_temp' , 'ActivityWaitQueue';
 
