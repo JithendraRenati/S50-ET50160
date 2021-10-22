@@ -19,7 +19,7 @@ GO
 	BEGIN
 		CREATE NONCLUSTERED INDEX [IX_ActivityWaitQueue_staging_old_MID] 
 		ON [InteractionStudio].[ActivityWaitQueue_staging_old] ([MID])
-			WITH (ONLINE=ON, DATA_COMPRESSION=ROW, MAXDOP = 8);
+			WITH (ONLINE=ON, DATA_COMPRESSION=PAGE, MAXDOP = 8);
 	END
 	GO
 
