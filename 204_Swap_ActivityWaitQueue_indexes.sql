@@ -13,7 +13,7 @@ GO
 
 /**************************Rename Indexes from Old AWQ to AWQ (that is empty)*****************************/
 --Rename PK_ActivityWaitQueue_temp_QueueID_cl
-EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue_old].PK_ActivityWaitQueue_temp_QueueID_cl', N'PK_ActivityWaitQueue_QueueID_cl_old', N'INDEX'; 
+EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue_old].PK_ActivityWaitQueue_QueueID_cl', N'PK_ActivityWaitQueue_QueueID_cl_old', N'INDEX'; 
 
 --Rename IX_ActivityWaitQueue_MID_ContactKey_IsProcessed_WaitEndDate_DefinitionID_IsActive
 EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue_old].IX_ActivityWaitQueue_MID_ContactKey_IsProcessed_WaitEndDate_DefinitionID_IsActive', N'IX_ActivityWaitQueue_MID_ContactKey_IsProcessed_WaitEndDate_DefinitionID_IsActive_old', N'INDEX'; 
