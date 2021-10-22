@@ -94,7 +94,7 @@ GO
 					,[SourceInstanceID]      ,[ExitCriteriaLastChecked]      ,[WaitingForEventID]      ,[Q1RequestObjectId]      ,[Q1RequestObjectIsOutOfRow]	, ImportedFromAWQStaging	, ImportedDate
 					,[AdditionalDetails]	,[EventSource]	,[WaitType]
 			FROM (
-				DELETE TOP (1000) 
+				DELETE TOP (10000) 
 				FROM #ActivityWaitQueue_Batch
 				OUTPUT
 				deleted.QueueID, deleted.DefinitionID, deleted.ActivityID, deleted.InstanceDefinitionID, deleted.InstanceActivityID, deleted.ContactID,
