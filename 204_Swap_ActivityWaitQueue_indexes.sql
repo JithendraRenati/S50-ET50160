@@ -12,7 +12,7 @@ SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 GO
 
 /**************************Rename Indexes from Old AWQ to AWQ (that is empty)*****************************/
---Rename PK_ActivityWaitQueue_temp_QueueID_cl
+--Rename PK_ActivityWaitQueue_QueueID_cl
 EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue_old].PK_ActivityWaitQueue_QueueID_cl', N'PK_ActivityWaitQueue_QueueID_cl_old', N'INDEX'; 
 
 --Rename IX_ActivityWaitQueue_MID_ContactKey_IsProcessed_WaitEndDate_DefinitionID_IsActive
@@ -43,10 +43,10 @@ EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue].IX_ActivityWaitQueue_te
 --Rename IX_ActivityWaitQueue_InstanceDefinitionId_Active_NotProcessed
 EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue].IX_ActivityWaitQueue_temp_InstanceDefinitionId_Active_NotProcessed', N'IX_ActivityWaitQueue_InstanceDefinitionId_Active_NotProcessed', N'INDEX'; 
 
---Rename IX_ActivityWaitQueue_WaitingForEventID_Status_ContactKey_ActivityId
+--Rename IX_ActivityWaitQueue_temp_WaitingForEventID_Status_ContactKey_ActivityId
 EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue].IX_ActivityWaitQueue_temp_WaitingForEventID_Status_ContactKey_ActivityId', N'IX_ActivityWaitQueue_WaitingForEventID_Status_ContactKey_ActivityId', N'INDEX'; 
 
---Rename IX_Q1RequestObjectId
+--Rename IX_Q1RequestObjectId_temp
 EXEC sp_rename N'[InteractionStudio].[ActivityWaitQueue].IX_Q1RequestObjectId_temp', N'IX_Q1RequestObjectId', N'INDEX';
 
 --Rename IX_ActivityWaitQueue_temp_ActivityId_WaitEndDate_MID_StatusFlags
