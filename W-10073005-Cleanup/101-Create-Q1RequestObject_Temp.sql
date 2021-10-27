@@ -35,13 +35,6 @@ BEGIN
 END;
 GO
 
--- needed by dbo.InteractionStudioPruneOrphanQ1RequestObject 
-IF  EXISTS(SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('InteractionStudio.Q1RequestObject_temp') AND [name] = N'IX_Q1RequestObject_temp_CreatedDate')
-BEGIN
-	DROP INDEX IX_Q1RequestObject_temp_CreatedDate ON InteractionStudio.Q1RequestObject_temp;
-END;
-GO
-
 /*##########################################################################################
 $$Author: Jithendra Renati
 $$Purpose: JB Q1 Store RequestObject BLOB in separate table
