@@ -18,7 +18,7 @@ SET DEADLOCK_PRIORITY HIGH;
 
 	CREATE TABLE #Q1RequestObjectIds 
 	(
-		Q1RequestObjectId				UNIQUEIDENTIFIER
+		Q1RequestObjectId	UNIQUEIDENTIFIER PRIMARY KEY
 	);
 
 	CREATE TABLE #Q1RequestObject_Records (
@@ -42,10 +42,10 @@ SET DEADLOCK_PRIORITY HIGH;
 	SELECT Q1RequestObjectId FROM InteractionStudio.RequestQueue RQ WITH (NOLOCK);
 
 	INSERT INTO #Q1RequestObjectIds
-	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue WITH (NOLOCK) WHERE StatusFlags=1;
+	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue WITH (NOLOCK) WHERE StatusFlags=1 AND Q1RequestObjectId IS NOT NULL;
 
 	INSERT INTO #Q1RequestObjectIds
-	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging WITH (NOLOCK);
+	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging WITH (NOLOCK) WHERE Q1RequestObjectId IS NOT NULL;
 	/*--------------------------------------------*/
 
 	/*Get all Records from Q1RequestObject*/
@@ -83,8 +83,8 @@ SET DEADLOCK_PRIORITY HIGH;
 		END
 	END TRY
 	BEGIN CATCH
-	THROW;
-		END CATCH;
+		THROW;
+	END CATCH;
 	GO
 /*####################################################################
 $$Sproc:  Copy active records Q1RequestObject to _temp table
