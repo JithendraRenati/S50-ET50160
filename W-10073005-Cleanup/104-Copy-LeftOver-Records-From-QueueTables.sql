@@ -15,10 +15,10 @@ SET DEADLOCK_PRIORITY HIGH;
 
 	DROP TABLE IF EXISTS #Q1RequestObjectIds ;
 	DROP TABLE IF EXISTS #Q1RequestObject_Records ;
-
+	
 	CREATE TABLE #Q1RequestObjectIds 
 	(
-		Q1RequestObjectId				UNIQUEIDENTIFIER
+		Q1RequestObjectId UNIQUEIDENTIFIER PRIMARY KEY
 	);
 
 	CREATE TABLE #Q1RequestObject_Records (
@@ -37,8 +37,10 @@ SET DEADLOCK_PRIORITY HIGH;
 		Q1RequestObjectSourceMachine	NVARCHAR(128)	NULL
 	) WITH(DATA_COMPRESSION=ROW);
 
+	
+
 	/*---------Gather Q1RequestObjectId's-----------*/
-	INSERT INTO #Q1RequestObjectIds
+	/*INSERT INTO #Q1RequestObjectIds
 	SELECT Q1RequestObjectId FROM InteractionStudio.RequestQueue RQ WITH (NOLOCK)
 	WHERE NOT EXISTS (SELECT Q1RequestObjectId FROM InteractionStudio.Q1RequestObject RO WITH (NOLOCK) WHERE RO.Q1RequestObjectId = RQ.Q1RequestObjectId);
 
@@ -49,19 +51,39 @@ SET DEADLOCK_PRIORITY HIGH;
 	INSERT INTO #Q1RequestObjectIds
 	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging AWQS WITH (NOLOCK)
 	WHERE NOT EXISTS (SELECT Q1RequestObjectId FROM InteractionStudio.Q1RequestObject RO WITH (NOLOCK) WHERE RO.Q1RequestObjectId = AWQS.Q1RequestObjectId);
+	*/
+	INSERT INTO #Q1RequestObjectIds
+	SELECT Q1RequestObjectId FROM (
+		SELECT Q1RequestObjectId FROM InteractionStudio.RequestQueue RQ WITH (NOLOCK)
+		UNION
+		SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue WITH (NOLOCK) WHERE StatusFlags=1 AND Q1RequestObjectId IS NOT NULL
+		UNION
+		SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging WITH (NOLOCK) WHERE Q1RequestObjectId IS NOT NULL
+	) AS A;
 	/*--------------------------------------------*/
 
 	/*Get all Records from Q1RequestObject*/
 	IF EXISTS(SELECT TOP 1 NULL FROM #Q1RequestObjectIds)
 	BEGIN
 		INSERT INTO #Q1RequestObject_Records
+		(
+			Q1RequestObjectId, Q1RequestObjectIsCompressed, Q1RequestObject, Q1RequestObjectCompressed, 
+			Q1RequestObjectCompressionLevel, Q1RequestObjectCompressedSize, Q1RequestObjectOriginalSize, 
+			Q1RequestObjectCompressedHash, Q1RequestObjectOriginalHash, MID, EID, CreatedDate, 
+			Q1RequestObjectSourceMachine
+		)
 		SELECT 
 			Q1.Q1RequestObjectId, Q1.Q1RequestObjectIsCompressed, Q1.Q1RequestObject, Q1.Q1RequestObjectCompressed, 
 			Q1.Q1RequestObjectCompressionLevel, Q1.Q1RequestObjectCompressedSize, Q1.Q1RequestObjectOriginalSize, 
 			Q1.Q1RequestObjectCompressedHash, Q1.Q1RequestObjectOriginalHash, Q1.MID, Q1.EID, Q1.CreatedDate, 
 			Q1.Q1RequestObjectSourceMachine
-		FROM #Q1RequestObjectIds Q1_TEMP WITH (NOLOCK)
-		INNER JOIN InteractionStudio.Q1RequestObject_old Q1 WITH (NOLOCK) ON Q1.Q1RequestObjectId = Q1_TEMP.Q1RequestObjectId;
+		FROM InteractionStudio.Q1RequestObject_old AS Q1 WITH (NOLOCK) 
+		WHERE Q1.Q1RequestObjectId IN (
+			SELECT Q1_TEMP.Q1RequestObjectId
+			FROM #Q1RequestObjectIds Q1_TEMP WITH (NOLOCK)
+			LEFT OUTER JOIN InteractionStudio.Q1RequestObject Q2 WITH (NOLOCK) ON Q2.Q1RequestObjectId = Q1_TEMP.Q1RequestObjectId
+			WHERE Q2.Q1RequestObjectId IS NULL
+		);
 	END;
 	BEGIN TRY
 		WHILE EXISTS (SELECT TOP 1 NULL FROM #Q1RequestObject_Records)
@@ -88,8 +110,8 @@ SET DEADLOCK_PRIORITY HIGH;
 		END
 	END TRY
 	BEGIN CATCH
-	THROW;
-		END CATCH;
+		THROW;
+	END CATCH;
 	GO
 /*####################################################################
 $$Sproc:  Copy active records Q1RequestObject to _temp table
