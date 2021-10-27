@@ -39,13 +39,13 @@ SET DEADLOCK_PRIORITY HIGH;
 
 	/*---------Gather Q1RequestObjectId's-----------*/
 	INSERT INTO #Q1RequestObjectIds
-	SELECT Q1RequestObjectId FROM InteractionStudio.RequestQueue RQ WITH (NOLOCK);
-
-	INSERT INTO #Q1RequestObjectIds
-	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue WITH (NOLOCK) WHERE StatusFlags=1 AND Q1RequestObjectId IS NOT NULL;
-
-	INSERT INTO #Q1RequestObjectIds
-	SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging WITH (NOLOCK) WHERE Q1RequestObjectId IS NOT NULL;
+	SELECT Q1RequestObjectId FROM (
+		SELECT Q1RequestObjectId FROM InteractionStudio.RequestQueue RQ WITH (NOLOCK)
+		UNION
+		SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue WITH (NOLOCK) WHERE StatusFlags=1 AND Q1RequestObjectId IS NOT NULL
+		UNION
+		SELECT Q1RequestObjectId FROM InteractionStudio.ActivityWaitQueue_Staging WITH (NOLOCK) WHERE Q1RequestObjectId IS NOT NULL
+	) AS A;
 	/*--------------------------------------------*/
 
 	/*Get all Records from Q1RequestObject*/
